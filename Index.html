@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Desafio de História — 6º Ano (Sistema Anglo)</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #2563eb;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+            --correct-bg: #dcfce7;
+            --correct-border: #22c55e;
+            --correct-text: #15803d;
+            --wrong-bg: #fee2e2;
+            --wrong-border: #ef4444;
+            --wrong-text: #b91c1c;
+            --hint-bg: #fef3c7;
+            --hint-border: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+        }
+
+        .quiz-container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-icon {
+            font-size: 2.2rem;
+        }
+
+        .header-info h1 {
+            font-size: 1.35rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .header-info p {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .progress-box {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .progress-bar-bg {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 5%;
+            background: var(--primary-light);
+            transition: width 0.3s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .tag {
+            align-self: flex-start;
+            background: #eff6ff;
+            color: var(--primary-light);
+            border: 1px solid #bfdbfe;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.4;
+            white-space: pre-line;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 0.88rem;
+            color: var(--text);
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            line-height: 1.35;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .option-btn:active {
+            background-color: #f1f5f9;
+        }
+
+        .option-btn.correct {
+            background-color: var(--correct-bg) !important;
+            border-color: var(--correct-border) !important;
+            color: var(--correct-text) !important;
+            font-weight: 600;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--wrong-bg) !important;
+            border-color: var(--wrong-border) !important;
+            color: var(--wrong-text) !important;
+        }
+
+        .footer-hint-section {
+            margin-top: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .hint-btn {
+            background: transparent;
+            border: none;
+            color: #d97706;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: left;
+            padding: 2px 0;
+            display: inline-block;
+        }
+
+        .hint-box {
+            background: var(--hint-bg);
+            border: 1px solid var(--hint-border);
+            color: #78350f;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            line-height: 1.35;
+            display: none;
+        }
+
+        .feedback-box {
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            line-height: 1.35;
+            display: none;
+        }
+
+        .feedback-box.correct {
+            background: var(--correct-bg);
+            border: 1px solid var(--correct-border);
+            color: var(--correct-text);
+        }
+
+        .feedback-box.wrong {
+            background: var(--wrong-bg);
+            border: 1px solid var(--wrong-border);
+            color: var(--wrong-text);
+        }
+
+        .feedback-box strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .action-btn {
+            background: #0f172a;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        .results-screen {
+            text-align: center;
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            padding: 10px 0;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .score-circle span {
+            font-size: 0.75rem;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <!-- Cabeçalho com Ícone e Título -->
+    <div class="header">
+        <div class="header-icon">🏛️</div>
+        <div class="header-info">
+            <h1>Desafio de História</h1>
+            <p>6º Ano — Sistema Anglo (Módulos 14 e 15)</p>
+        </div>
+    </div>
+
+    <div id="quiz-screen" style="display: flex; flex-direction: column; gap: 14px;">
+        <!-- Barra de Progresso e Contador de Acertos -->
+        <div class="progress-box">
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-stats">
+                <span id="question-number">Questão 1 de 20</span>
+                <span id="score-text">0 acertos</span>
+            </div>
+        </div>
+
+        <div class="tag" id="module-tag">Módulo</div>
+
+        <div class="question-text" id="question-text">Carregando pergunta...</div>
+
+        <!-- Opções de Múltipla Escolha -->
+        <div class="options-container" id="options-container"></div>
+
+        <!-- Dica e Feedback após as alternativas -->
+        <div class="footer-hint-section">
+            <button class="hint-btn" id="hint-toggle-btn" onclick="toggleHint()">💡 Precisa de uma dica?</button>
+            <div class="hint-box" id="hint-box"></div>
+        </div>
+
+        <div class="feedback-box" id="feedback-box"></div>
+
+        <button class="action-btn" id="next-btn" onclick="handleNextAction()">Próxima Questão</button>
+    </div>
+
+    <!-- Tela Final de Resultados -->
+    <div class="results-screen" id="results-screen">
+        <h2>🎉 Quiz Concluído!</h2>
+        <p>Você respondeu a todas as questões da prova de revisão de História.</p>
+        <div class="score-circle" id="final-score">
+            0/20
+            <span>Acertos</span>
+        </div>
+        <p id="final-message">Excelente dedicação nos estudos!</p>
+        <button class="action-btn" onclick="restartQuiz()">🔄 Reiniciar Quiz</button>
+    </div>
+</div>
+
+<script>
+var questions = [
+    // --- MÓDULO 14: AS ORIGENS DOS ROMANOS (Questões 1 a 10) ---
+    {
+        module: "Módulo 14 — As Origens dos Romanos",
+        question: "1. A fundação de Roma é explicada tanto por relatos mitológicos quanto por pesquisas históricas. Do ponto de vista histórico, a formação original da cidade resultou de:",
+        options: [
+            "a) Uma invasão imediata de generais vindos da Grécia para construir o Coliseu",
+            "b) A fixação de aldeias de pastores latinos às margens do rio Tibre, posteriormente unificadas sob influência etrusca",
+            "c) Um acordo comercial pacífico assinado entre o imperador Otávio Augusto e os cartagineses",
+            "d) A fuga de plebeus empobrecidos após a aprovação da Lei das Doze Tábuas"
+        ],
+        correct: 1,
+        hint: "Lembre-se de diferenciar mito (Rômulo e Remo) da história real (aldeias latinas unificadas por etruscos no rio Tibre).",
+        explanation: "Historicamente, a região da Península Itálica foi povoada por italiotas (como os latinos), que fundaram aldeias de pastores. Estas aldeias foram dominadas e unificadas pelos etruscos, consolidadas como a cidade de Roma por volta do século VIII a.C."
+    },
+    {
+        module: "Módulo 14 — As Origens dos Romanos",
+        question: "2. Na estrutura social da Roma Antiga durante a Monarquia e o início da República, os patrícios destacavam-se por serem:",
+        options: [
+            "a) Escravizados libertos que conseguiram comprar a sua própria cidadania",
+            "b) Comerciantes estrangeiros sem direito a possuir terras",
+            "c) Grandes proprietários de terras e de gado, descendentes dos fundadores de Roma e únicos com plenos direitos políticos no início",
+            "d) Trabalhadores braçais encarregados da limpeza e manutenção dos aquedutos"
+        ],
+        correct: 2,
+        hint: "Patrícios = topo da pirâmide social, donos das terras e do poder político inicial.",
+        explanation: "Os patrícios constituíam a nobreza romana. Sendo descendentes dos primeiros fundadores, detinham as melhores terras, a riqueza e o controle exclusivo do poder político nas primeiras fases da história romana."
+    },
+    {
+        module: "Módulo 14 — As Origens dos Romanos",
+        question: "3. Dentro da pirâmide social romana, a categoria dos clientes era composta por:",
+        options: [
+            "a) Prisioneiros de guerra submetidos ao trabalho forçado",
+            "b) Pessoas livres que se vinculavam a uma família patrícia, oferecendo serviços e apoio político em troca de proteção",
+            "c) Reis etruscos incumbidos de dirigir o Senado",
+            "d) Mulheres nobres que exerciam cargos de magistratura"
+        ],
+        correct: 1,
+        hint: "Clientes = pessoas dependentes que prestavam serviços a um patrício em troca de proteção.",
+        explanation: "Os clientes dependiam dos patrícios. Em troca de proteção jurídica, social e econômica fornecida pelo seu patrono (patrício), o cliente prestava-lhe serviços e fidelidade pessoal."
+    },
+    {
+        module: "Módulo 14 — As Origens dos Romanos",
+        question: "4. A passagem do período da Monarquia para a República em 509 a.C. ocorreu devido a:",
+        options: [
+            "a) Uma aliança entre o rei etrusco e os escravizados para destruir o Senado",
+            "b) Uma revolta dos patrícios, que depuseram o rei etrusco Tarquínio, o Soberbo, e aboliram o poder monárquico",
+            "c) Um decreto do imperador Constantino concedendo liberdade aos cristãos",
+            "d) Uma invasão imediata dos povos germânicos à Península Itálica"
+        ],
+        correct: 1,
+        hint: "A República nasceu da expulsão do último rei etrusco (Tarquínio, o Soberbo) pelos patrícios.",
+        explanation: "Os patrícios não aceitavam as tentativas do rei etrusco Tarquínio, o Soberbo, de governar sem consultar o Senado. Expulsaram o rei e criaram a República (res publica), gerida pelas instituições aristocráticas."
+    },
+    {
+        module: "Módulo 14 — As Origens dos Romanos",
+        question: "5. Durante a República Romana, a instituição política de maior prestígio e autoridade, responsável pelo controle das finanças, política externa e das leis, era:",
+        options: [
+            "a) O Tribunato da Plebe",
+            "b) O Senado",
+            "c) A Assembleia dos Escravizados",
+            "d) O Conselho dos Reis Etruscos"
+        ],
+        correct: 1,
+        hint: "O Senado era a instituição mais poderosa da República Romana.",
+        explanation: "O Senado era o centro do poder republicano, composto majoritariamente por patrícios de famílias tradicionais que tomavam as decisões mais importantes do Estado."
+    },
+    {
+        module: "Módulo 14 — As Origens dos Romanos",
+        question: "6. A criação do cargo de Tribuno da Plebe representou uma conquista importante para os plebeus porque:",
+        options: [
+            "a) Permitia que os plebeus se tornassem automaticamente imperadores de Roma",
+            "b) Garantia aos seus representantes o direito de vetar leis que fossem prejudiciais aos interesses da plebe",
+            "c) Eliminava a cobrança de impostos sobre o comércio de cereais",
+            "d) Proibia a construção de arenas e anfiteatros no território romano"
+        ],
+        correct: 1,
+        hint: "Tribuno da Plebe = representante eleito para defender os plebeus e vetar leis injustas.",
+        explanation: "O Tribuno da Plebe foi conquistado após intensas pressões e ameaças de paralisação militar dos plebeus. Esse magistrado tinha o poder de invocar o veto para barrar medidas patricianas injustas."
+    },
+    {
+        module: "Módulo 14 — As Origens dos Romanos",
+        question: "7. A promulgação da Lei das Doze Tábuas (450 a.C.) é considerada um marco fundamental na história jurídica romana porque:",
+        options: [
+            "a) Acabou com todas as diferenças de riqueza entre ricos e pobres",
+            "b) Registrou as leis por escrito, impedindo que os patrícios as interpretassem oralmente de forma arbitrária",
+            "c) Aboliu o Senado e transferiu todo o poder para os generais do exército",
+            "d) Estabeleceu o Cristianismo como religião obrigatória"
+        ],
+        correct: 1,
+        hint: "Lei das Doze Tábuas = primeiras leis escritas de Roma, evitando abusos dos patrícios.",
+        explanation: "Antes das Doze Tábuas, o direito era costumeiro (oral) e manipulado pelos juízes patrícios. Ao serem afixadas por escrito no Fórum, as leis tornaram-se públicas e de conhecimento geral."
+    },
+    {
+        module: "Módulo 14 — As Origens dos Romanos",
+        question: "8. As Guerras Púnicas, travadas durante a fase de expansão republicana, colocaram em confronto as cidades de:",
+        options: [
+            "a) Roma e Cartago, pela disputa do controle comercial do Mar Mediterrâneo",
+            "b) Roma e Atenas, pelo domínio das rotas do Rio Tibre",
+            "c) Constantinopla e Milão, pela posse dos aquedutos agrícolas",
+            "d) Esparta e Roma, pela liderança da religião católica"
+        ],
+        correct: 0,
+        hint: "Guerras Púnicas = conflito entre Roma e Cartago pelo domínio do Mar Mediterrâneo.",
+        explanation: "Cartago era uma grande potência marítima e comercial do norte da África. A disputa pela ilha da Sicília e pelo comércio mediterrâneo desencadeou as três Guerras Púnicas, vencidas por Roma."
+    },
+    {
+        module: "Módulo 14 — As Origens dos Romanos",
+        question: "9. A intensa expansão territorial romana trouxe transformações profundas para a sociedade da República, entre as quais sobressai:",
+        options: [
+            "a) O fim definitivo do trabalho escravo nas áreas rurais",
+            "b) A entrada maciça de escravizados prisioneiros de guerra e o empobrecimento dos camponeses plebeus",
+            "c) A redução do território sob domínio militar romano",
+            "d) A proibição de construir estradas conectadas à capital"
+        ],
+        correct: 1,
+        hint: "Conquistas -> mais escravizados -> ruína dos pequenos camponeses plebeus.",
+        explanation: "As conquistas encheram Roma de escravizados. Os grandes latifundiários patrícios passaram a usar essa mão de obra barata, arruinando os pequenos agricultores plebeus, que migraram para as cidades."
+    },
+    {
+        module: "Módulo 14 — As Origens dos Romanos",
+        question: "10. A estratégia conhecida como política do 'Pão e Circo' (Panem et Circenses) foi adotada pelas autoridades romanas para:",
+        options: [
+            "a) Financiar escolas técnicas de arquitetura para os escravizados",
+            "b) Controlar e apaziguar a massa urbana de plebeus desempregados, através da distribuição de trigo e espetáculos gratuitos",
+            "c) Incentivar o comércio de mercadorias com os povos germânicos",
+            "d) Convencer a população a adotar o monoteísmo cristão nas catacumbas"
+        ],
+        correct: 1,
+        hint: "Pão e Circo = trigo grátis + diversão violenta nas arenas para conter revoltas do povo.",
+        explanation: "Para evitar rebeliões da multidão de plebeus famintos e desocupados acumulados na capital, os governantes doavam cereais (pão) e organizavam lutas de gladiadores (circo)."
+    },
+
+    // --- MÓDULO 15: O IMPÉRIO ROMANO (Questões 11 a 20) ---
+    {
+        module: "Módulo 15 — O Império Romano",
+        question: "11. Com o estabelecimento do Governo Imperial sob Otávio Augusto (27 a.C.), a imagem do imperador passou a ser divulgada em todo o território através do personalismo, que consistia em:",
+        options: [
+            "a) Publicar livros contendo a biografia de todos os plebeus de Roma",
+            "b) Utilizar moedas cunhadas com o perfil do imperador e erguer estátuas idealizadas como propaganda política",
+            "c) Exigir que a população usasse apenas vestimentas trazidas de Cartago",
+            "d) Proibir a circulação de imagens nas praças públicas e templos"
+        ],
+        correct: 1,
+        hint: "Personalismo = propaganda política do imperador através do seu rosto em moedas e estátuas.",
+        explanation: "O personalismo imperial buscava consolidar a autoridade do governante. Como o Império era vasto, moedas com a efígie do imperador e estátuas espalhadas pelas províncias faziam a sua figura ser conhecida por todos."
+    },
+    {
+        module: "Módulo 15 — O Império Romano",
+        question: "12. A célebre expressão 'Todos os caminhos levam a Roma' reflete a relevância da extensa rede de estradas romanas, cuja função principal era:",
+        options: [
+            "a) Impedir o transporte marítimo de mercadorias no Mediterrâneo",
+            "b) Agilizar a deslocação de tropas do exército, a cobrança de impostos e a integração econômica",
+            "c) Servir de fronteira física inacessível para evitar a entrada de mercadores",
+            "d) Delimitar os locais exclusivos para as reuniões do Senado"
+        ],
+        correct: 1,
+        hint: "Estradas = agilidade militar, comércio ativo e controle administrativo das províncias.",
+        explanation: "As estradas pavimentadas interligavam as províncias à capital. Permitiam que as legiões chegassem rapidamente às fronteiras e que o comércio e a administração funcionassem com eficiência."
+    },
+    {
+        module: "Módulo 15 — O Império Romano",
+        question: "13. No cotidiano urbano das cidades romanas, a diferença marcante entre as insulae e as domus residia no fato de que:",
+        options: [
+            "a) As insulae eram edifícios habitacionais precários para a população pobre, enquanto as domus eram habitações térreas luxuosas dos patrícios",
+            "b) As insulae eram grandes arenas de gladiadores e as domus eram banheiros públicos",
+            "c) As domus ficavam localizadas fora do território imperial e as insulae no centro de Cartago",
+            "d) Ambas eram templos religiosos dedicados exclusivamente ao deus Júpiter"
+        ],
+        correct: 0,
+        hint: "Insulae = prédios dos pobres; Domus = casa espaçosa e luxuosa dos ricos.",
+        explanation: "As insulae eram prédios altos de cortiço sujeitos a incêndios, onde viviam os plebeus humildes. As domus eram casas amplas, confortáveis e decoradas, pertencentes à elite rica."
+    },
+    {
+        module: "Módulo 15 — O Império Romano",
+        question: "14. Nas cidades romanas, o thermopolium consistia em um espaço urbano vocacionado para:",
+        options: [
+            "a) A formação militar dos jovens soldados das legiões",
+            "b) A venda de refeições prontas e rápidas para a população que não tinha cozinha em casa",
+            "c) O julgamento de crimes cometidos contra os patrícios no Fórum",
+            "d) A armazenagem de armas de ferro utilizadas pelo exército germânico"
+        ],
+        correct: 1,
+        hint: "Thermopolium = o 'fast-food' da Antiguidade Romana.",
+        explanation: "O thermopolium funcionava como um estabelecimento de refeições rápidas. Como a maioria das habitações pobres (insulae) não possuía cozinha por risco de incêndio, as pessoas comiam nessas instalações comerciais."
+    },
+    {
+        module: "Módulo 15 — O Império Romano",
+        question: "15. Apesar de a sociedade romana ser estritamente patriarcal, subordinada à autoridade do pater familias, as mulheres em Roma:",
+        options: [
+            "a) Não podiam sair de casa nem frequentar eventos sob pena de prisão",
+            "b) Gozavam de maior liberdade social do que as mulheres gregas, podendo frequentar espetáculos, gerir bens e banquetes",
+            "c) Ocupavam os cargos de maior prestígio no Senado e no comando do exército",
+            "d) Eram as únicas responsáveis pela cobrança dos impostos imperiais"
+        ],
+        correct: 1,
+        hint: "A mulher romana tinha autoridade no lar e relativa liberdade social (maior do que em Atenas).",
+        explanation: "Embora sujeitas à tutela masculina (pater familias ou marido) e sem direitos políticos, as romanas possuíam vida social ativa, participando de festas, teatros e negócios familiares."
+    },
+    {
+        module: "Módulo 15 — O Império Romano",
+        question: "16. A religiosidade tradicional romana caracterizava-se essencialmente por ser:",
+        options: [
+            "a) Monoteísta, centrada na figura de um único deus criador",
+            "b) Politeísta, assimilando diversos deuses da mitologia grega aos quais atribuíram nomes latinos",
+            "c) Exclusivamente fundamentada nos ritos dos povos germânicos",
+            "d) Contraria a qualquer tipo de sacrifício ou oferenda pública"
+        ],
+        correct: 1,
+        hint: "Religiosidade romana tradicional = politeísta com deuses assimilados da Grécia.",
+        explanation: "Os romanos eram politeístas e incorporaram o panteão grego na sua cultura, alterando os nomes das divindades (ex.: Zeus passou a ser Júpiter; Ares passou a ser Marte)."
+    },
+    {
+        module: "Módulo 15 — O Império Romano",
+        question: "17. Nos três primeiros séculos da nossa era, os cristãos sofreram perseguições sistemáticas da parte do Estado Romano porque:",
+        options: [
+            "a) Exigiam o regresso do domínio dos reis etruscos à Península Itálica",
+            "b) Eram monoteístas e recusavam-se a prestar culto divino ao imperador e aos deuses tradicionais",
+            "c) Lideravam as invasões germânicas contra as fronteiras imperiais",
+            "d) Queriam destruir a rede de estradas e os aquedutos da capital"
+        ],
+        correct: 1,
+        hint: "Perseguição aos cristãos = recusa em adorar o imperador como deus devido ao monoteísmo.",
+        explanation: "O culto ao imperador era visto como um dever de lealdade civil. Como os cristãos aceitavam apenas um único Deus (monoteísmo), recusavam os ritos imperiais, sendo acusados de traição."
+    },
+    {
+        module: "Módulo 15 — O Império Romano",
+        question: "18. O processo de transformação do Cristianismo na religião oficial do Império Romano culminou no século IV com a promulgação do:",
+        options: [
+            "a) Édito de Tessalônica (380 d.C.), assinado pelo imperador Teodósio",
+            "b) Tratado das Guerras Púnicas com a cidade de Cartago",
+            "c) Código das Doze Tábuas de bronze pelos Tribunos da Plebe",
+            "d) Decreto de Expulsão dos Patrícios do Senado"
+        ],
+        correct: 0,
+        hint: "Édito de Tessalônica (Teodósio) = Cristianismo torna-se a religião oficial do Império.",
+        explanation: "Após a concessão de liberdade de culto pelo Édito de Milão (313 d.C.), foi o Édito de Tessalônica (380 d.C.), sob Teodósio, que tornou o Cristianismo a religião oficial do Estado."
+    },
+    {
+        module: "Módulo 15 — O Império Romano",
+        question: "19. A partir do século III, a economia do Império Romano enfrentou uma grave crise estrutural desencadeada principalmente por:",
+        options: [
+            "a) Excesso de novas terras conquistadas no continente asiático",
+            "b) Fim das guerras de expansão, que provocou a escassez de mão de obra escrava e a queda da produção",
+            "c) Abandono imediato do uso de moedas nas transações comerciais",
+            "d) Aliança militar entre o imperador e os chefes dos Hunos"
+        ],
+        correct: 1,
+        hint: "Fim das conquistas -> escassez de escravos -> crise na agricultura e inflação econômica.",
+        explanation: "O modelo econômico romano dependia de novos escravizados obtidos em conquistas. Quando as fronteiras pararam de crescer, escassearam os escravos, gerando crise agrícola, falta de alimentos e inflação."
+    },
+    {
+        module: "Módulo 15 — O Império Romano",
+        question: "20. Para os romanos, a designação 'bárbaros' era aplicada a todos os povos que:",
+        options: [
+            "a) Viviam no interior da cidade de Roma e pertenciam ao Senado",
+            "b) Habitavam fora das fronteiras (limes) do Império e não falavam a língua latina",
+            "c) Ocupavam os cargos de magistratura como os edis e os pretores",
+            "d) Eram seguidores das leis escritas contidas nas Doze Tábuas"
+        ],
+        correct: 1,
+        hint: "Bárbaro para os romanos = quem vivia fora das fronteiras (limes) e não falava latim.",
+        explanation: "A palavra 'bárbaro' tinha um sentido cultural e pejorativo para os romanos: referia-se a qualquer povo germânico ou nômade que vivesse além das fronteiras do Império e que não partilhasse da cultura latina."
+    }
+];
+
+var currentIndex = 0;
+var score = 0;
+var answered = false;
+
+function renderOptions(q) {
+    var container = document.getElementById("options-container");
+    container.innerHTML = "";
+    
+    for (var i = 0; i < q.options.length; i++) {
+        var btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.setAttribute("type", "button");
+        btn.innerText = q.options[i];
+        (function(index) {
+            btn.onclick = function() { selectOption(index); };
+        })(i);
+        container.appendChild(btn);
+    }
+}
+
+function loadQuestion() {
+    answered = false;
+    var q = questions[currentIndex];
+
+    // Atualiza barra de progresso e contadores
+    document.getElementById("progress-fill").style.width = (((currentIndex + 1) / questions.length) * 100) + "%";
+    document.getElementById("question-number").innerText = "Questão " + (currentIndex + 1) + " de " + questions.length;
+    document.getElementById("score-text").innerText = score + " acertos";
+    document.getElementById("module-tag").innerText = q.module;
+    document.getElementById("question-text").innerText = q.question;
+
+    // Reseta caixa de dica no rodapé
+    var hintBox = document.getElementById("hint-box");
+    hintBox.style.display = "none";
+    hintBox.innerText = q.hint;
+
+    // Reseta caixa de feedback
+    var feedbackBox = document.getElementById("feedback-box");
+    feedbackBox.style.display = "none";
+    feedbackBox.className = "feedback-box";
+
+    renderOptions(q);
+
+    var nextBtn = document.getElementById("next-btn");
+    nextBtn.innerText = "Próxima Questão";
+    nextBtn.style.display = "none";
+}
+
+function toggleHint() {
+    var hintBox = document.getElementById("hint-box");
+    hintBox.style.display = (hintBox.style.display === "block") ? "none" : "block";
+}
+
+function selectOption(selectedIndex) {
+    if (answered) return;
+    answered = true;
+
+    var q = questions[currentIndex];
+    var optionBtns = document.querySelectorAll(".option-btn");
+    var feedbackBox = document.getElementById("feedback-box");
+    var nextBtn = document.getElementById("next-btn");
+
+    for (var i = 0; i < optionBtns.length; i++) {
+        optionBtns[i].disabled = true;
+    }
+
+    if (selectedIndex === q.correct) {
+        score++;
+        if (optionBtns[selectedIndex]) optionBtns[selectedIndex].className += " correct";
+        feedbackBox.className = "feedback-box correct";
+        feedbackBox.innerHTML = "<strong>✅ Resposta Correta!</strong>" + q.explanation;
+    } else {
+        if (optionBtns[selectedIndex]) optionBtns[selectedIndex].className += " wrong";
+        if (optionBtns[q.correct]) optionBtns[q.correct].className += " correct";
+        feedbackBox.className = "feedback-box wrong";
+        feedbackBox.innerHTML = "<strong>❌ Alternativa Incorreta</strong>" + q.explanation;
+    }
+
+    feedbackBox.style.display = "block";
+    document.getElementById("score-text").innerText = score + " acertos";
+    nextBtn.style.display = "block";
+}
+
+function handleNextAction() {
+    currentIndex++;
+    if (currentIndex < questions.length) {
+        loadQuestion();
+    } else {
+        showResults();
+    }
+}
+
+function showResults() {
+    document.getElementById("quiz-screen").style.display = "none";
+    var resultsScreen = document.getElementById("results-screen");
+    resultsScreen.style.display = "flex";
+
+    document.getElementById("final-score").innerHTML = score + "/20<span>Acertos</span>";
+
+    var message = document.getElementById("final-message");
+    if (score >= 17) {
+        message.innerText = "🏆 Sensacional! Você demonstrou domínio completo sobre a história da Roma Antiga!";
+    } else if (score >= 12) {
+        message.innerText = "👏 Muito bom! Você possui ótimos conhecimentos para gabaritar a prova de História.";
+    } else {
+        message.innerText = "📚 Bom esforço! Revise os módulos em que teve mais dificuldades e tente novamente!";
+    }
+}
+
+function restartQuiz() {
+    currentIndex = 0;
+    score = 0;
+    document.getElementById("results-screen").style.display = "none";
+    document.getElementById("quiz-screen").style.display = "flex";
+    loadQuestion();
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
